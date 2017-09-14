@@ -9,16 +9,16 @@ using glm::vec4;
 using glm::mat4;
 using aie::Gizmos;
 
-_04_DirectLightingApp::_04_DirectLightingApp() {
-
+_04_DirectLightingApp::_04_DirectLightingApp() 
+{
 }
 
-_04_DirectLightingApp::~_04_DirectLightingApp() {
-
+_04_DirectLightingApp::~_04_DirectLightingApp() 
+{
 }
 
-bool _04_DirectLightingApp::startup() {
-	
+bool _04_DirectLightingApp::startup() 
+{	
 	setBackgroundColour(0.25f, 0.25f, 0.25f);
 
 	// initialise gizmo primitive counts
@@ -31,13 +31,13 @@ bool _04_DirectLightingApp::startup() {
 	return true;
 }
 
-void _04_DirectLightingApp::shutdown() {
-
+void _04_DirectLightingApp::shutdown() 
+{
 	Gizmos::destroy();
 }
 
-void _04_DirectLightingApp::update(float deltaTime) {
-
+void _04_DirectLightingApp::update(float deltaTime) 
+{
 	// wipe the gizmos clean for this frame
 	Gizmos::clear();
 
@@ -63,13 +63,16 @@ void _04_DirectLightingApp::update(float deltaTime) {
 		quit();
 }
 
-void _04_DirectLightingApp::draw() {
-
+void _04_DirectLightingApp::draw() 
+{
 	// wipe the screen to the background colour
 	clearScreen();
 
 	// update perspective based on screen size
 	m_projectionMatrix = glm::perspective(glm::pi<float>() * 0.25f, getWindowWidth() / (float)getWindowHeight(), 0.1f, 1000.0f);
+	
+	Gizmos::addSphere(vec3(0, 0, 0), 3, 10, 10, vec4(0));
+
 
 	Gizmos::draw(m_projectionMatrix * m_viewMatrix);
 }
