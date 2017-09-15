@@ -1,14 +1,26 @@
 #version 410
 
-layout(location=0) in vec4 Position;
-layout(location = 1) in vec4 Normal;
+uniform vec3 direction;
+uniform vec3 Id;
+uniform vec3 Ia;
+uniform vec3 Is;
 
-out vec4 vNormal; 
-out vec4 vPosition; 
+uniform vec3 Ka;
+uniform vec3 Kd;
+uniform vec3 Ks;
+uniform float a;
 
-uniform mat4 ProjectionView; 
+
+in vec4 vNormal;
+in vec4 vPosition;
+in vec4 vColor;
+in vec4 vUV;
+in vec4 vTangent;
+
+out vec4 FragColor;
 
 void main() 
 { 
-
+	
+	FragColor = vNormal;
 }
