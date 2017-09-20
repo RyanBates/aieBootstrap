@@ -21,17 +21,35 @@
     <ClCompile Include="_04_DirectLightingApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_04_DirectLightingApp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="phong.frag">
+    <None Include="..\bin\Shader\phong.frag">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="phong.vert">
+    <None Include="..\bin\Shader\phong.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\bin\Shader\default_frag.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\bin\Shader\defualt_vert.vert">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

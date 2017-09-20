@@ -1,16 +1,19 @@
 #include "_04_DirectLightingApp.h"
+#include "Shader.h"
+#include "Mesh.h"
 #include "Gizmos.h"
 #include "Input.h"
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 #include <gl_core_4_4.h>
+#include <vector>
 
 using glm::vec3;
 using glm::vec4;
 using glm::mat4;
 using aie::Gizmos;
 
-_04_DirectLightingApp::_04_DirectLightingApp() 
+_04_DirectLightingApp::_04_DirectLightingApp()
 {
 }
 
@@ -20,18 +23,17 @@ _04_DirectLightingApp::~_04_DirectLightingApp()
 
 void _04_DirectLightingApp::generateSphere(unsigned int segments, unsigned int rings, unsigned int& vao, unsigned int& vbo, unsigned int& ibo, unsigned int& indexCount)
 {
-
 	unsigned int vertCount = (segments + 1) * (rings + 2);
 	indexCount = segments * (rings + 1) * 6;
 
 	// using AIEVertex for now, but could be any struct as long as it has the correct elements
-	Vertex* vertices = new Vertex[vertCount];
+	Vertex1* vertices = new Vertex1[vertCount];
 	unsigned int* indices = new unsigned int[indexCount];
 
 	float ringAngle = glm::pi<float>() / (rings + 1);
 	float segmentAngle = 2.0f * glm::pi<float>() / segments;
 
-	Vertex* vertex = vertices;
+	Vertex1* vertex = vertices;
 
 	for (unsigned int ring = 0; ring < (rings + 2); ++ring) {
 		float r0 = glm::sin(ring * ringAngle);
@@ -69,21 +71,21 @@ void _04_DirectLightingApp::generateSphere(unsigned int segments, unsigned int r
 	}
 
 	// generate buffers
-	glGenBuffers(1, &m_VBO);
-	glGenBuffers(1, &m_IBO);
+	glGenBuffers(1, &vbo);
+	glGenBuffers(1, &ibo);
 
 	// generate vertex array object (descriptors)
-	glGenVertexArrays(1, &m_VAO);
+	glGenVertexArrays(1, &vao);
 
 	// all changes will apply to this handle
-	glBindVertexArray(m_VAO);
+	glBindVertexArray(vao);
 
 	// set vertex buffer data
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, vertCount * sizeof(Vertex), vertices, GL_STATIC_DRAW);
 
 	// index data
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
 	// position
@@ -93,7 +95,6 @@ void _04_DirectLightingApp::generateSphere(unsigned int segments, unsigned int r
 	// colors
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(glm::vec4)));
-
 	// normals
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 4, GL_FLOAT, GL_TRUE, sizeof(Vertex), (void*)(sizeof(glm::vec4) * 2));
@@ -116,7 +117,10 @@ void _04_DirectLightingApp::generateSphere(unsigned int segments, unsigned int r
 }
 
 bool _04_DirectLightingApp::startup() // will get the setup for lights
-{	
+{
+	shade = new Shader();
+	mesh = new Mesh();
+
 	setBackgroundColour(0.25f, 0.25f, 0.25f);
 
 	// initialise gizmo primitive counts
@@ -127,14 +131,48 @@ bool _04_DirectLightingApp::startup() // will get the setup for lights
 	m_projectionMatrix = glm::perspective(glm::pi<float>() * 0.25f, 16.0f / 9.0f, 0.1f, 1000.0f);
 
 
-	generateSphere(60, 60, m_VAO, m_VBO, m_IBO, m_IndexCount);
+
+	shade->load("./Shader/phong.vert", GL_VERTEX_SHADER);
+	shade->load("./Shader/phong.frag", GL_FRAGMENT_SHADER);
+
+	shade->attach();
+
+
+	generateSphere(10, 10, mesh->m_VAO, mesh->m_VBO, mesh->m_IBO, mesh->m_index_count);
 
 	return true;
 }
 
-void _04_DirectLightingApp::shutdown() 
+void _04_DirectLightingApp::draw()
 {
-	Gizmos::destroy();
+	// wipe the screen to the background colour
+	clearScreen();
+
+	// update perspective based on screen size
+
+	//m_projectionMatrix = glm::perspective(glm::pi<float>() * 0.25f, getWindowWidth() / (float)getWindowHeight(), 0.1f, 1000.0f);
+
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	//Gizmos::draw(m_projectionMatrix * m_viewMatrix);
+
+	shade->bind();
+
+	m_projectionMatrix = glm::perspective(glm::pi<float>() * 0.25f, getWindowWidth() / (float)getWindowHeight(), 0.1f, 1000.0f);
+
+	glUniformMatrix4fv(shade->getUniform("mvp"), 1, false, glm::value_ptr(m_projectionMatrix));
+
+	mesh->bind();
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	glDrawElements(GL_TRIANGLES, mesh->m_index_count, GL_UNSIGNED_INT, 0);
+
+	mesh->unbind();
+
+	shade->unbind();
+
+	//Gizmos::draw(m_projectionMatrix * m_viewMatrix);
 }
 
 void _04_DirectLightingApp::update(float deltaTime) 
@@ -157,6 +195,9 @@ void _04_DirectLightingApp::update(float deltaTime)
 	// add a transform so that we can see the axis
 	Gizmos::addTransform(mat4(1));
 
+	//Gizmos::addSphere(vec3(0, 0, 0), 2.5f, 60, 60, vec4(0));
+	
+
 	// quit if we press escape
 	aie::Input* input = aie::Input::getInstance();
 
@@ -164,16 +205,7 @@ void _04_DirectLightingApp::update(float deltaTime)
 		quit();
 }
 
-
-
-void _04_DirectLightingApp::draw() 
+void _04_DirectLightingApp::shutdown()
 {
-	// wipe the screen to the background colour
-	clearScreen();
-
-	// update perspective based on screen size
-	m_projectionMatrix = glm::perspective(glm::pi<float>() * 0.25f, getWindowWidth() / (float)getWindowHeight(), 0.1f, 1000.0f);
-	
-
-	Gizmos::draw(m_projectionMatrix * m_viewMatrix);
+	Gizmos::destroy();
 }

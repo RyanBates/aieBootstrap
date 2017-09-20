@@ -3,16 +3,9 @@
 #include "Application.h"
 #include <glm/mat4x4.hpp>
 
-class Vertex
-{
-public:
-	glm::vec4 position;
-	glm::vec4 color;
-	glm::vec4 normal;
-	glm::vec4 tangent;
-	glm::vec4 bitangent;
-	glm::vec2 texcoord;
-};
+class Shader;
+class Mesh;
+
 
 class _04_DirectLightingApp : public aie::Application {
 public:
@@ -38,4 +31,7 @@ protected:
 	unsigned int m_VBO;
 	unsigned int m_IBO;
 	unsigned int m_IndexCount;
+
+	Shader* shade;
+	Mesh* mesh;
 };
