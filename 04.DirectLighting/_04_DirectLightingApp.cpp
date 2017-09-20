@@ -127,7 +127,7 @@ bool _04_DirectLightingApp::startup() // will get the setup for lights
 	m_projectionMatrix = glm::perspective(glm::pi<float>() * 0.25f, 16.0f / 9.0f, 0.1f, 1000.0f);
 
 
-	generateSphere(10, 8, m_VAO, m_VBO, m_IBO, m_IndexCount);
+	generateSphere(60, 60, m_VAO, m_VBO, m_IBO, m_IndexCount);
 
 	return true;
 }
